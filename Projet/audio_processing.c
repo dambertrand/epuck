@@ -12,6 +12,7 @@
 #include <arm_math.h>
 
 //semaphore
+
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
 
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
