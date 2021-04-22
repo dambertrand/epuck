@@ -16,7 +16,7 @@
 #include <communications.h>
 #include <arm_math.h>
 
-//hey
+//salut
 
 //uncomment to send the FFTs results from the real microphones
 //#define SEND_FROM_MIC
