@@ -1,4 +1,7 @@
 
 lib/
 
+.dep/
+build/
+
 Projet/.settings/
