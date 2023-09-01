@@ -1,3 +1,80 @@
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
+import pandas as pd
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+# Sample Data
+df_reference = pd.DataFrame({
+    'rate1': np.random.randn(100),
+    'rate2': np.random.randn(100),
+    'rate3': np.random.randn(100),
+    'rate4': np.random.randn(100)
+})
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+app.layout = dbc.Container([
+    html.H1("PCA Regression Projector"),
+    
+    dbc.Row([
+        dbc.Col([
+            html.Label("Select Assets:"),
+            dcc.Dropdown(
+                id='asset-dropdown',
+                options=[{'label': i, 'value': i} for i in df_reference.columns],
+                value=[df_reference.columns[0]],
+                multi=True
+            )
+        ])
+    ]),
+    
+    dbc.Row([
+        dbc.Col([
+            html.Label("Projection on 3 PCA Components:"),
+            html.Div(id='projection-output')
+        ])
+    ]),
+])
+
+@app.callback(
+    Output('projection-output', 'children'),
+    Input('asset-dropdown', 'value')
+)
+def update_projection(selected_assets):
+    # Extract data of selected assets
+    filtered_df = df_reference[selected_assets]
+
+    # Standardize the data
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(filtered_df)
+
+    # Compute PCA with 3 components
+    pca = PCA(n_components=3)
+    projected_data = pca.fit_transform(scaled_data)
+
+    # Create a DataFrame for the projection results
+    df_projection = pd.DataFrame(
+        projected_data, 
+        columns=[f'PC{i+1}' for i in range(3)]
+    )
+    
+    # Return as an HTML table
+    return dbc.Table.from_dataframe(df_projection, striped=True, bordered=True, hover=True)
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
+
+
+
+
+
+
+
 
 import dash
 from dash import dcc, html
