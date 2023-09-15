@@ -1,3 +1,54 @@
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+
+app = dash.Dash(__name__)
+
+app.layout = html.Div([
+    dcc.Tabs(
+        id='tabs-example',
+        value='tab-1',
+        children=[
+            dcc.Tab(label='Tab 1', value='tab-1'),
+            dcc.Tab(label='Tab 2', value='tab-2'),
+        ],
+        style={
+            'backgroundColor': '#f5f5f5',  # General background for tabs
+            'borderBottom': '1px solid #d6d6d6',
+            'padding': '6px'
+        },
+        tab_style={
+            'border': '1px solid #d6d6d6',
+            'backgroundColor': '#f5f5f5',
+            'padding': '6px'
+        },
+        selected_tab_style={
+            'borderTop': '2px solid #d6d6d6',
+            'backgroundColor': '#ffffff',
+            'color': '#000000',
+            'fontWeight': 'bold'
+        }
+    ),
+    html.Div(id='tabs-content-example')
+])
+
+@app.callback(
+    Output('tabs-content-example', 'children'),
+    Input('tabs-example', 'value')
+)
+def render_content(tab):
+    if tab == 'tab-1':
+        return html.Div([
+            html.H3('Tab content 1')
+        ])
+    elif tab == 'tab-2':
+        return html.Div([
+            html.H3('Tab content 2')
+        ])
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
 Alright! Using `networkD3` in R to create a network plot that remains dynamic in a Python Dash app involves a more complex process, as you'll need to convert the `networkD3` output to an HTML widget and then extract the necessary components to render it in Dash.
 
 Here's a step-by-step approach:
