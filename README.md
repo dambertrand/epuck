@@ -1,3 +1,67 @@
+import gym
+from gym import spaces
+import numpy as np
+
+class TradingEnv(gym.Env):
+    def __init__(self, data, initial_balance=10000):
+        super(TradingEnv, self).__init__()
+        
+        self.data = data
+        self.initial_balance = initial_balance
+        self.balance = initial_balance
+        self.current_step = 0
+        self.done = False
+        
+        # Number of days of data to consider
+        self.lookback_window = 10
+        
+        # Positions: long, short, neutral
+        self.position = 'neutral'
+
+        # Action space: buy, sell, hold, increase_param, decrease_param
+        self.action_space = spaces.Discrete(5)
+
+        # Define observation space: last `lookback_window` days' prices + 1 indicator parameter
+        self.observation_space = spaces.Box(low=0, high=1, shape=(self.lookback_window + 1,), dtype=np.float32)
+
+        # Initial value of the indicator parameter, e.g., moving average period
+        self.indicator_param = 10
+
+    def reset(self):
+        self.balance = self.initial_balance
+        self.current_step = self.lookback_window
+        self.done = False
+        self.position = 'neutral'
+        return self._next_observation()
+
+    def _next_observation(self):
+        # Return the last `lookback_window` prices + indicator parameter
+        obs = self.data['price'][self.current_step - self.lookback_window:self.current_step].values
+        return np.append(obs, self.indicator_param)
+
+    def step(self, action):
+        self.current_step += 1
+        
+        if self.current_step >= len(self.data) - 1:
+            self.done = True
+
+        prev_balance = self.balance
+
+        # Implement trading logic
+        if action == 0: # Buy
+            if self.position == 'neutral':
+                self.position = 'long'
+                # Adjust balance based on buying at current price
+                self.balance -= self.data['price'][self.current_step]
+            elif self.position == 'short':
+                # Cover short and buy long
+                self.balance += 2 * self.data['price'][self.current_step]
+                self.position = 'long'
+
+        elif action == 1: # Sell
+            if self.position == 'neutral':
+                self.position = 'short'
+                # Adjust balance based on
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
